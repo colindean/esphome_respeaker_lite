@@ -242,8 +242,19 @@ def _final_validate(_):
         )
 
 
+def using_esp_idf():
+    """Replaces CORE.using_esp_idf
+
+    CORE.using_esp_idf went away in ESPHome at some point.
+    For using this on reSpeaker Lite, this will always be true.
+
+    At least someone claimed this…
+    """
+    return True
+
+
 def use_legacy():
-    return not (CORE.using_esp_idf and not _use_legacy_driver)
+    return not (using_esp_idf() and not _use_legacy_driver)
 
 
 FINAL_VALIDATE_SCHEMA = _final_validate
@@ -256,7 +267,7 @@ async def to_code(config):
         cg.add_define("USE_I2S_LEGACY")
 
     # Helps avoid callbacks being skipped due to processor load
-    if CORE.using_esp_idf:
+    if using_esp_idf():
         add_idf_sdkconfig_option("CONFIG_I2S_ISR_IRAM_SAFE", True)
 
     cg.add(var.set_lrclk_pin(config[CONF_I2S_LRCLK_PIN]))
